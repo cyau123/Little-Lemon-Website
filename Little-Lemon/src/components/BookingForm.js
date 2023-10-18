@@ -1,13 +1,19 @@
 import React, {useState} from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { addDays, format } from 'date-fns';
 
 const BookingForm = (props) => {
+    const today = new Date();
+    const tomorrow = addDays(today, 1);
+
+    const tomorrowFormatted = format(tomorrow, 'yyyy-MM-dd');
 
     const validationSchema = Yup.object().shape({
         firstName: Yup.string().required('First name is required'),
         lastName: Yup.string().required('Last name is required'),
-        date: Yup.date().required('Date is required'),
+        date: Yup.date().required('Date is required')
+                        .min(today, 'Date must be tomorrow or later'),
         times: Yup.string().required('Time is required'),
         guests: Yup.number().required('Number of guests is required').min(1, 'Minimum number of guests is 1'),
     });
@@ -51,7 +57,7 @@ const BookingForm = (props) => {
                         </div>
                         <div>
                             <label htmlFor='book-date'>Choose Date:</label>
-                            <input id='book-date' name='date' value={formik.values.date} onChange={formik.handleChange} type='date'/>
+                            <input id='book-date' name='date' value={formik.values.date} onChange={formik.handleChange} type='date' min={tomorrowFormatted}/>
                             {formik.errors.date && (
                                 <div className='error'>{formik.errors.date}</div>
                             )}
@@ -86,6 +92,7 @@ const BookingForm = (props) => {
                         <div>
                             <label htmlFor='book-occasion'>Occasion:</label>
                             <select id='book-occasion' name='occasion' value={formik.values.occasion} onChange={formik.handleChange}>
+                                <option>None</option>
                                 <option>Birthday</option>
                                 <option>Anniversary</option>
                             </select>
